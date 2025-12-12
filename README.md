@@ -9,11 +9,9 @@
 ![Research Problems](https://img.shields.io/badge/Research_Problems-50-blue) ![Algorithmic Problems](https://img.shields.io/badge/Algorithmic_Problems-110-green)
 
 
-<p align="center">
-  <img src="assets/teaser.png" alt="Frontier-CS Teaser" width="2000"/>
-</p>
 
-**Frontier-CS** is a dataset for evaluating frontier models on challenging computer science problems. From optimizing GPU kernels to solving competitive programming challenges.
+
+**Frontier-CS** is a *unsolved*, *verifiable*, *open-ended*, and *diverse* dataset for evaluating frontier models on challenging computer science problems. From optimizing system scheduling to solving competitive programming-style open challenges.
 
 Whether you're benchmarking LLM agents, evaluating code generation models, or stress-testing reasoning capabilities, Frontier-CS provides a comprehensive suite of tasks designed for rigorous, practical evaluation.
 
@@ -53,7 +51,7 @@ export GOOGLE_API_KEY="..."           # For Gemini models
 
 ### Research Problems
 
-Real-world systems problems requiring domain expertise in areas including operating systems, distributed systems, GPU computing, machine learning, databases, programming languages, and security.
+Real-world research problems requiring domain expertise in areas including machine learning, operating systems, distributed systems, GPU computing, machine learning, databases, programming languages, and security.
 
 **Quick Start:**
 
@@ -72,8 +70,7 @@ python scripts/skypilot_per_solution.py --max-concurrent 4
 
 ### Algorithmic Problems
 
-Competitive programming problems with automated judging, including optimization tasks, construction challenges, and interactive problems.
-
+Competitive programming-style problems with automated judging.
 **Quick Start:**
 
 ```bash
