@@ -9,16 +9,19 @@
 
 
 
-**Frontier-CS** is a *unsolved*, *verifiable*, *open-ended*, and *diverse* dataset for evaluating frontier models on challenging computer science problems. From optimizing system scheduling to solving competitive programming-style open challenges.
+**Frontier-CS** is an *unsolved*, *verifiable*, *open-ended*, and *diverse* dataset for evaluating frontier models on challenging computer science problems, ranging from system scheduling optimization to competitive programming–style open challenges.
 
-Whether you're benchmarking LLM agents, evaluating code generation models, or stress-testing reasoning capabilities, Frontier-CS provides a comprehensive suite of tasks designed for rigorous, practical evaluation.
+Whether you are benchmarking LLM agents, evaluating code generation models, or stress-testing reasoning capabilities, Frontier-CS provides a comprehensive suite of tasks designed for rigorous and practical evaluation.
 
 Frontier-CS consists of two categories:
 
-- **Research Problems**: Real-world systems challenges: GPU kernels, distributed scheduling, ML pipelines, database optimization, and security exploits
-- **Algorithmic Problems**: Competitive programming challenges: optimization, construction, and interactive problems
+- **Algorithmic Problems**: Competitive programming challenges, including optimization, construction, and interactive problems. For each algorithmic problem, we release the full problem statement, evaluator, and *one* public test case.  
 
-Frontier-CS is continuously expanding with new and challenging tasks contributed by the community.
+- **Research Problems**: Real-world systems challenges, including GPU kernels, distributed scheduling, ML pipelines, database optimization, and security exploits. For research problems, we release all data and scripts required to fully reproduce the results.
+
+
+Frontier-CS is continuously expanding with new and increasingly challenging tasks contributed by the community.
+
 
 ## Quickstart
 
