@@ -8,7 +8,9 @@
 Computer Science Last Exam
 </h3>
 
+<p align="center">
 [![Website](https://img.shields.io/badge/Website-frontier--cs.org-orange?logo=googlechrome)](https://frontier-cs.org) ![Research Problems](https://img.shields.io/badge/Research_Problems-50-blue) ![Algorithmic Problems](https://img.shields.io/badge/Algorithmic_Problems-115-green)
+</p>
 
 **Frontier-CS** is an _unsolved_, _verifiable_, _open-ended_, and _diverse_ dataset for evaluating frontier models on challenging computer science problems, ranging from optimization problems in real research to competitive programming–style open challenges.
 
