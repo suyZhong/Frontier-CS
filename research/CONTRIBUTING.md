@@ -93,24 +93,61 @@ research/{problem_name}
 
 ---
 
-## Problem Variants
+## Problem Hierarchy: Categories and Variants
 
-For problems with multiple configurations:
+Research problems follow a hierarchical structure:
+
+```
+Problem (e.g., gemm_optimization, poc_generation)
+└── Category (e.g., squares, heap_buffer_overflow)
+    └── Variant (e.g., arvo_21000)
+```
+
+| Level | Evaluation | Reporting |
+|-------|------------|-----------|
+| **Category** | — | Scores aggregated for leaderboard |
+| **Variant** | Evaluated independently | Contributes to category score |
+
+### Example: Simple Variants
 
 ```
 research/gemm_optimization/
-├── squares/           # Variant 1
+├── squares/           # Variant (category = squares)
 │   ├── config.yaml
+│   ├── readme
 │   └── evaluator.py
-├── rectangles/        # Variant 2
-└── transformerish/    # Variant 3
+├── rectangles/        # Variant (category = rectangles)
+└── transformerish/    # Variant (category = transformerish)
 ```
 
-Register each variant in `problems.txt`:
+### Example: Nested Variants
+
+For problems with many variants per category:
+
+```
+research/poc_generation/
+├── heap_buffer_overflow/       # Category
+│   ├── config.yaml             # Category-level config (tag only)
+│   ├── arvo_21000/             # Variant
+│   │   ├── config.yaml
+│   │   ├── readme
+│   │   └── evaluator.py
+│   └── arvo_47101/             # Variant
+└── stack_buffer_overflow/      # Category
+    └── ...
+```
+
+### Registering Problems
+
+Add each **variant** (not category) to `problems.txt`:
 ```
 research/gemm_optimization/squares
 research/gemm_optimization/rectangles
+research/poc_generation/heap_buffer_overflow/arvo_21000
+research/poc_generation/heap_buffer_overflow/arvo_47101
 ```
+
+> Note: `problems.txt` lists all evaluatable variants (109 total). The leaderboard aggregates scores by category (~50 categories).
 
 ---
 

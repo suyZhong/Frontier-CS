@@ -47,7 +47,7 @@ export GOOGLE_API_KEY="..."           # For Gemini models
 
 ### Research Problems
 
-Real-world research problems requiring domain expertise in areas including machine learning, operating systems, distributed systems, GPU computing, machine learning, databases, programming languages, and security.
+Real-world research problems requiring domain expertise in areas including machine learning, operating systems, distributed systems, GPU computing, databases, programming languages, and security.
 
 
 ```bash
@@ -57,7 +57,7 @@ cd research
 python generate_oneshot_gpt.py --model <model_name>
 
 # Run evaluation locally (requires Docker)
-chmod -x ./main_loop.sh
+chmod +x ./main_loop.sh
 ./main_loop.sh
 
 # Or run on cloud (requires SkyPilot)
@@ -110,6 +110,7 @@ score = judge.evaluate_solution(
 )
 print(f"Score: {score}")
 ```
+
 ## Submit Your Results
 We currently release partial test cases for algorithmic problems to allow users to test and debug their solutions. To submit your solutions for full evaluation and have it included in the leaderboard, please send your solutions to qmang@berkeley.edu or wenhao.chai@princeton.edu following the instructions in [SUBMIT_RESULTS.md](SUBMIT_RESULTS.md).
 
