@@ -28,12 +28,12 @@ Current benchmarks are becoming too easy. Models score 90%+ on many existing cod
 
 **Frontier-CS is different:**
 
-|            | Traditional Benchmarks          | Frontier-CS                                               |
-| ---------- | ------------------------------- | -------------------------------------------------------   |
-| Difficulty | Often saturated with evolving intelligence   | _Unsolved_: no solution has achieved perfect scores |
-| Problems   | Textbook-style, known solutions | _Open-ended_ research & optimization challenges           |
-| Evaluation | Binary pass-or-fail                | _Verifiable_ continuous scoring, always room to improve   |
-| Scope      | Usually one domain              | _Diverse_: systems, ML, algorithms, security, and more    |
+|            | Traditional Benchmarks                     | Frontier-CS                                             |
+| ---------- | ------------------------------------------ | ------------------------------------------------------- |
+| Difficulty | Often saturated with evolving intelligence | _Unsolved_: no solution has achieved perfect scores     |
+| Problems   | Textbook-style, known solutions            | _Open-ended_ research & optimization challenges         |
+| Evaluation | Binary pass-or-fail                        | _Verifiable_ continuous scoring, always room to improve |
+| Scope      | Usually one domain                         | _Diverse_: systems, ML, algorithms, security, and more  |
 
 **[Leaderboard →](https://frontier-cs.org/leaderboard)** | Browse example problems at [frontier-cs.org](https://frontier-cs.org)
 
@@ -54,24 +54,25 @@ pip install -e .
 
 ### Try it yourself
 
-<p align="center">
-  <img src="assets/teaser.png" alt="Example Problem" width="800"/>
-</p>
+Here's [Algorithmic Problem 0](algorithmic/problems/0/statement.txt) - try to beat GPT-5!
 
 ```bash
 # Start the judge server
 cd algorithmic && docker compose up -d
-# Run the example solution (GPT-5 Thinking Solution)
-frontier-eval --algorithmic 0 algorithmic/problems/0/examples/gpt5.cpp
 
 # Run the example solution (Human Expert Solution)
 frontier-eval --algorithmic 0 algorithmic/problems/0/examples/reference.cpp
 
+# Run the example solution (GPT-5 Thinking Solution)
+frontier-eval --algorithmic 0 algorithmic/problems/0/examples/gpt5.cpp
+
 # Try you own solution!
 frontier-eval --algorithmic 0 <your_solution.cpp>
 ```
-See [Algorithmic-Problem-0](algorithmic/problems/0/statement.txt) for the full problem description.
 
+<p align="center">
+  <img src="assets/teaser.png" alt="Example Problem" width="800"/>
+</p>
 
 ### Research Problems
 
@@ -98,8 +99,7 @@ cd algorithmic && docker compose up -d
 frontier-eval --algorithmic 1 <your_solution.cpp>
 ```
 
-> **NOTE** 1. We currently support **C++ only** for algorithmic problem solutions.
-> 2. For each problem, we release only the test cases required for **local debugging and preview scoring**. The reference solutiosn and full test cases are deliberately withheld and thus the final scores may differ. To get the full evaluation and be included in the leaderboard, please submit your solutions following the "Submitting Results" section below.
+> **NOTE** 1. We currently support **C++ only** for algorithmic problem solutions. 2. For each problem, we release only the test cases required for **local debugging and preview scoring**. The reference solutiosn and full test cases are deliberately withheld and thus the final scores may differ. To get the full evaluation and be included in the leaderboard, please submit your solutions following the "Submitting Results" section below.
 
 See [algorithmic/README.md](algorithmic/README.md) for full documentation.
 
