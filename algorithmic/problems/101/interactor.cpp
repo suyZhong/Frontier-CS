@@ -33,9 +33,8 @@ double score(int x){
 }
 
 double score_unbounded(int x){
-    if (x <= 0) return 1.0;
     if (x >= 5000) return 0.0;
-    return (5000.0 - x) / 5000.0;
+    return (5000.0 - x) / (5000.0 - 900.0);
 }
 
 [[noreturn]] void wrong(const int num) {

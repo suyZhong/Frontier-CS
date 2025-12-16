@@ -32,10 +32,8 @@ double perCaseScoreBounded(int q, int n) {
 
 double perCaseRatioUnbounded(int q, int n) {
     double L = log2((double)n);
-    if (L <= 0.0) return 0.0;
-    double raw = (15.0 * L - (double)q) / (15.0 * L);
-    if (raw < 0.0) raw = 0.0;
-    return raw;
+    if (q >= 15.0 * L) return 0.0;
+    return 100.0 * (15.0 * L - (double)q) / (14.0 * L);
 }
 
 int main(int argc, char* argv[]) {

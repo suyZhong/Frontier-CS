@@ -9,9 +9,8 @@ double f_bounded(int x) {
 }
 
 double f_unbounded(int x) {
-    if (x <= 0) return 100.0;
     if (x >= 5000) return 0.0;
-    return 100.0 * (5000.0 - x) / 5000.0;
+    return 100.0 * (5000.0 - x) / (5000.0 - 500.0);
 }
 
 int a[605], t[305];

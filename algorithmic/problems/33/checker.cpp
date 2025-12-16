@@ -54,9 +54,8 @@ double score_bounded(int n) {
 }
 
 double score_unbounded(int n) {
-    if (n <= 0) return 90.0;
     if (n >= 2000) return 0.0;
-    return 90.0 * (2000.0 - n) / 2000.0;
+    return 90.0 * (2000.0 - n) / (2000.0 - 90.0);
 }
 
 int main(int argc, char *argv[]) {

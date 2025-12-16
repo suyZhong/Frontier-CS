@@ -10,8 +10,7 @@ double F_bounded(int x, int n) {
 }
 
 double F_unbounded(int x, int n) {
-    int l = 0, r = n + 1000;
-    if (x <= l) return 100.0;
+    int l = n, r = n + 1000;
     if (x >= r) return 0.0;
     return 100.0 * (r - x) / (r - l);
 }
