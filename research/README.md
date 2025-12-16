@@ -80,16 +80,107 @@ results = evaluator.evaluate_batch("research",
 
 ## Problem Structure
 
-Each problem is in its own directory under `research/`:
+Each problem is in its own directory under `research/problems/`:
 
 ```
-research/
-├── flash_attn/
-│   ├── config.yaml      # Problem metadata and scoring
-│   ├── readme            # Problem description
-│   ├── evaluate.sh       # Evaluation script
-│   └── resources/        # Baseline code, data, etc.
-├── cross_entropy/
+research/problems/
+├── flash_attn/           # Single problem
+│   ├── config.yaml
+│   ├── readme
+│   ├── evaluator.py
+│   └── resources/
+├── gemm_optimization/    # Problem with variants
+│   ├── squares/
+│   ├── rectangles/
 │   └── ...
 └── ...
 ```
+
+### File Reference
+
+| File | Purpose |
+|------|---------|
+| `config.yaml` | Runtime config (Docker image, GPU requirement, timeout) |
+| `readme` | Problem description, API spec, scoring formula |
+| `set_up_env.sh` | Environment setup (install deps, check CUDA) |
+| `download_datasets.sh` | Download datasets (for local pre-download) |
+| `evaluate.sh` | Evaluation entry point |
+| `run_evaluator.sh` | Invokes `evaluator.py` |
+| `evaluator.py` | Core evaluation logic |
+| `resources/` | Baseline code, benchmark, test data |
+
+### config.yaml Example
+
+```yaml
+dependencies:
+  uv_project: resources    # Optional: uv project in resources/
+datasets: []               # Optional: dataset URLs
+tag: hpc                   # Category: os, hpc, ai, db, pl, security
+runtime:
+  docker:
+    image: andylizf/triton-tlx:tlx-nv-cu122
+    gpu: true
+  timeout_seconds: 1800
+```
+
+## Evaluation Flow
+
+Inside the Docker container, the execution order is:
+
+```
+1. set_up_env.sh         →  Initialize environment
+2. Copy solution.py      →  /work/execution_env/solution_env/
+3. evaluate.sh           →  Check files, call run_evaluator.sh
+4. run_evaluator.sh      →  python3 evaluator.py
+5. evaluator.py          →  Load Solution.solve(), run benchmark, print score
+```
+
+The final score is extracted from the last numeric line of stdout.
+
+## Solution Interface
+
+Submit a `solution.py` implementing the `Solution` class. The interface varies by problem type:
+
+### Triton Kernel Problems (flash_attn, cross_entropy, gemm_optimization...)
+
+```python
+class Solution:
+    def solve(self, spec_path: str = None) -> dict:
+        """
+        Returns either:
+        - {"code": "python_code_string"}
+        - {"program_path": "path/to/kernel.py"}
+        """
+        kernel_code = '''
+import triton
+import triton.language as tl
+
+@triton.jit
+def my_kernel(...):
+    ...
+
+def entry_function(...):
+    ...
+'''
+        return {"code": kernel_code}
+```
+
+### ML Training Problems (imagenet_pareto...)
+
+```python
+class Solution:
+    def solve(self, train_loader, val_loader, metadata: dict) -> torch.nn.Module:
+        """
+        Train and return a model.
+
+        metadata contains: num_classes, input_dim, param_limit,
+                          baseline_accuracy, device, etc.
+        """
+        model = MyModel(...)
+        # training loop
+        return model
+```
+
+### Other Problems
+
+Check each problem's `readme` for the specific `solve()` signature and return type.

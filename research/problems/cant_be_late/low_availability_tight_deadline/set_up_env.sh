@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Usage: ./prepare_env.sh [config_path]
+# Usage: ./set_up_env.sh [config_path]
 
 CONFIG_PATH=${1:-config.yaml}
 if [[ ! -f "$CONFIG_PATH" ]]; then
@@ -10,7 +10,8 @@ if [[ ! -f "$CONFIG_PATH" ]]; then
 fi
 
 PROBLEM_DIR=$(pwd)
-EXEC_ROOT="../../../execution_env"
+# Use resources directory for venv (problem-specific)
+EXEC_ROOT="./resources"
 mkdir -p "$EXEC_ROOT"
 
 # Parse config: first line uv_project (may be empty), subsequent lines dataset JSON objects.
@@ -18,13 +19,17 @@ CONFIG_LINES=()
 while IFS= read -r line; do
     CONFIG_LINES+=("$line")
 done < <(python3 - <<'PY' "$CONFIG_PATH"
-import json, sys
+import json, sys, yaml
 from pathlib import Path
 cfg_path = Path(sys.argv[1])
+content = cfg_path.read_text()
 try:
-    data = json.load(cfg_path.open())
-except json.JSONDecodeError as e:
-    raise SystemExit(f"Failed to parse {cfg_path}: {e}")
+    data = yaml.safe_load(content)
+except:
+    try:
+        data = json.loads(content)
+    except json.JSONDecodeError as e:
+        raise SystemExit(f"Failed to parse {cfg_path}: {e}")
 print(data.get("dependencies", {}).get("uv_project", ""))
 for dataset in data.get("datasets", []):
     print(json.dumps(dataset))
@@ -40,8 +45,6 @@ UV_PROJECT_REL=${CONFIG_LINES[0]}
 DATASET_LINES=("${CONFIG_LINES[@]:1}")
 
 VENV_DIR="$EXEC_ROOT/.venv"
-pip install --user uv || exit 1
-export PATH="$HOME/.local/bin:/usr/local/bin:$PATH"
 
 echo "[prepare_env] Creating/updating venv at $VENV_DIR"
 uv venv "$VENV_DIR"
@@ -106,7 +109,7 @@ for dataset_json in "${DATASET_LINES[@]}"; do
         echo "[prepare_env] Dataset already present at $TARGET_DIR"
         continue
       fi
-      
+
       # Check if dataset is available in mounted /datasets folder
       MOUNTED_DATASETS="/datasets/cant_be_late"
       if [[ -d "$MOUNTED_DATASETS" ]] && compgen -G "$MOUNTED_DATASETS/real/ddl=search+task=48+overhead=*/real/*/traces/random_start/*.json" >/dev/null 2>&1; then
@@ -115,7 +118,7 @@ for dataset_json in "${DATASET_LINES[@]}"; do
         ln -sf "$MOUNTED_DATASETS"/* "$TARGET_DIR/"
         continue
       fi
-      
+
       if [[ ! -f "$TAR_PATH" ]]; then
         echo "Error: dataset tarball missing at $TAR_PATH" >&2
         exit 1
