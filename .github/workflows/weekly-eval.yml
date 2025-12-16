@@ -85,17 +85,31 @@ jobs:
                   except:
                       pass
 
+          # Get list of problem names
+          problems_dir = Path('research/problems')
+          problem_names = set()
+          if problems_dir.exists():
+              for p in problems_dir.iterdir():
+                  if p.is_dir():
+                      problem_names.add(p.name)
+
           # Read all possible pairs from solutions/
           solutions_dir = Path('solutions')
           pairs = []
           if solutions_dir.exists():
               for sol_dir in solutions_dir.iterdir():
                   if sol_dir.is_dir() and (sol_dir / 'solve.sh').exists():
-                      # Try to infer problem from solution name
-                      # Format: {model}_{problem}_{variant} or {model}_{problem}
+                      # Extract problem from solution name: {model}_{problem}[_{variant}]
                       name = sol_dir.name
-                      # This is a simplified heuristic - adjust as needed
-                      pairs.append(f'{name}:inferred')
+                      # Find the longest matching problem name
+                      parts = name.split('_')
+                      best_problem = None
+                      for i in range(1, len(parts) + 1):
+                          candidate = '_'.join(parts[1:i])
+                          if candidate in problem_names:
+                              best_problem = candidate
+                      if best_problem:
+                          pairs.append(f'{name}:{best_problem}')
 
           # Filter out already evaluated
           new_pairs = [p for p in pairs if p not in evaluated]
