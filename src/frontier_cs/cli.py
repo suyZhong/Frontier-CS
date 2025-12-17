@@ -20,8 +20,9 @@ Usage:
     frontier-eval --list
     frontier-eval --list --algorithmic
 
-    # Batch evaluation (requires eval targets file)
-    frontier-eval batch --pairs-file eval_targets.txt
+    # Batch evaluation (scans solutions/ by default)
+    frontier-eval batch
+    frontier-eval batch --solutions-dir path/to/solutions
     frontier-eval batch --resume --results-dir results/batch1
 """
 
@@ -191,8 +192,11 @@ Examples:
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  # Evaluate from eval targets file
-  frontier-eval batch --pairs-file eval_targets.txt
+  # Evaluate all solutions (scans solutions/ directory)
+  frontier-eval batch
+
+  # Evaluate from specific solutions directory
+  frontier-eval batch --solutions-dir path/to/solutions
 
   # Evaluate specific pairs
   frontier-eval batch --pairs "sol1:flash_attn,sol2:cross_entropy"
@@ -203,9 +207,8 @@ Examples:
   # Check evaluation status
   frontier-eval batch --status --results-dir results/batch1
 
-Eval targets file format (solution:problem per line):
-  gpt5_flash_attn:flash_attn
-  claude_sonnet_4_5_cross_entropy:cross_entropy
+Each solution directory should have a config.yaml with:
+  problem: flash_attn
         """,
     )
 
@@ -220,6 +223,11 @@ Eval targets file format (solution:problem per line):
         "--pairs-file",
         type=Path,
         help="Pairs file (solution:problem per line)",
+    )
+    pairs_group.add_argument(
+        "--solutions-dir",
+        type=Path,
+        help="Solutions directory to scan (default: solutions/)",
     )
 
     batch_output = batch_parser.add_argument_group("Output Options")
@@ -492,8 +500,28 @@ def run_batch(args: argparse.Namespace) -> int:
         state = batch.evaluate_pairs_file(args.pairs_file, resume=resume)
 
     else:
-        print("Error: Specify input with --pairs or --pairs-file", file=sys.stderr)
-        return 1
+        # Mode: scan solutions directory (default)
+        from .batch import scan_solutions_dir
+
+        solutions_dir = args.solutions_dir
+        if solutions_dir is None:
+            # Default to solutions/ in current directory or repo root
+            for candidate in [Path("solutions"), Path("../solutions"), Path("../../solutions")]:
+                if candidate.is_dir():
+                    solutions_dir = candidate.resolve()
+                    break
+
+        if solutions_dir is None or not solutions_dir.is_dir():
+            print("Error: No solutions directory found. Use --solutions-dir or --pairs-file", file=sys.stderr)
+            return 1
+
+        pairs = scan_solutions_dir(solutions_dir)
+        if not pairs:
+            print(f"Error: No solutions with config.yaml found in {solutions_dir}", file=sys.stderr)
+            return 1
+
+        print(f"\nBatch evaluation: {len(pairs)} solutions from {solutions_dir}")
+        state = batch.evaluate_pairs(pairs, resume=resume)
 
     # Print summary
     print(f"\n{'='*40}")

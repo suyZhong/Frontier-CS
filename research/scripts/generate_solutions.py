@@ -559,18 +559,13 @@ Examples:
         print("ERROR: Cannot mix problem-based (--problem, --problems-file) and solution-based (--solution, --solutions-file) options")
         sys.exit(1)
 
-    # Default priority: problems.txt > eval_targets.txt (solutions-file is lowest priority)
+    # Default to problems.txt if no targets provided
     if not has_problem_targets and not has_solution_targets:
         problems_default = base_dir / "problems.txt"
-        eval_targets_default = repo_root / "eval_targets.txt"
         if problems_default.is_file():
             args.problems_file = str(problems_default)
             has_problem_targets = True
             print(f"No targets provided; defaulting to {problems_default}.")
-        elif eval_targets_default.is_file():
-            args.solutions_file = str(eval_targets_default)
-            has_solution_targets = True
-            print(f"No targets provided; defaulting to solutions from {eval_targets_default}.")
         else:
             print("ERROR: Provide --problem, --problems-file, --solution, or --solutions-file")
             sys.exit(1)
@@ -613,24 +608,26 @@ Examples:
     # Handle --solution patterns (expands to solutions-file format)
     if args.solution_patterns:
         import fnmatch
-        # Load eval_targets.txt to get solution->problem mapping (in repo root)
-        eval_targets_path = repo_root / "eval_targets.txt"
-        solution_to_problem: Dict[str, str] = {}
-        if eval_targets_path.is_file():
-            for line in eval_targets_path.read_text(encoding="utf-8").splitlines():
-                line = line.strip()
-                if not line or line.startswith("#") or ":" not in line:
-                    continue
-                sol_name, prob_path = line.split(":", 1)
-                solution_to_problem[sol_name.strip()] = prob_path.strip()
 
-        # Also scan solutions directory for existing solutions
+        # Scan solutions directory and read config.yaml for problem mapping
         solutions_dir = repo_root / "solutions"
-        all_solutions = set(solution_to_problem.keys())
+        solution_to_problem: Dict[str, str] = {}
         if solutions_dir.is_dir():
             for sol_dir in solutions_dir.iterdir():
                 if sol_dir.is_dir() and not sol_dir.name.startswith('.'):
-                    all_solutions.add(sol_dir.name)
+                    config_file = sol_dir / "config.yaml"
+                    if config_file.exists():
+                        try:
+                            content = config_file.read_text(encoding="utf-8")
+                            for line in content.splitlines():
+                                if line.strip().startswith("problem:"):
+                                    problem = line.split(":", 1)[1].strip()
+                                    solution_to_problem[sol_dir.name] = problem
+                                    break
+                        except Exception:
+                            pass
+
+        all_solutions = set(solution_to_problem.keys())
 
         matched_solutions: List[Tuple[str, str]] = []
         for pattern in args.solution_patterns:
@@ -638,13 +635,9 @@ Examples:
             for sol_name in sorted(all_solutions):
                 if fnmatch.fnmatch(sol_name, pattern) or fnmatch.fnmatch(sol_name, f"*{pattern}*"):
                     prob_path = solution_to_problem.get(sol_name, "")
-                    if not prob_path:
-                        # Try to infer problem from solution name (remove model prefix)
-                        parts = sol_name.split("_", 1)
-                        if len(parts) > 1:
-                            prob_path = f"research/problems/{parts[1].replace('_', '/')}"
-                    matched_solutions.append((sol_name, prob_path))
-                    matched = True
+                    if prob_path:
+                        matched_solutions.append((sol_name, prob_path))
+                        matched = True
             if not matched:
                 print(f"WARNING: No solutions matched pattern '{pattern}'")
 
@@ -887,10 +880,15 @@ Examples:
                 problem_path=task.problem_path,
                 docker_config=docker_config,
             )
-            sol_dir = create_solution(repo_root, task.solution_name, code)
+            # Extract problem path (remove "research/problems/" prefix if present)
+            problem_for_config = task.display_path
+            for prefix in ("research/problems/", "problems/"):
+                if problem_for_config.startswith(prefix):
+                    problem_for_config = problem_for_config[len(prefix):]
+                    break
+            sol_dir = create_solution(repo_root, task.solution_name, code, problem=problem_for_config)
             print(f"  {green('✓')} Created: {green(str(sol_dir))}")
             print(f"  {dim('Log saved:')} {dim(str(log_file))}")
-            print(f"  {dim('eval_targets.txt:')} {task.solution_name}:{task.display_path}")
             return ("generated", task.solution_name, None, task.provider, pool_token)
         except Exception as exc:
             message = f"{exc} (log: {log_file})"

@@ -1,6 +1,7 @@
 """Solution templates for code generation."""
 
 from pathlib import Path
+from typing import Optional
 
 PREPARE_ENV_TEMPLATE = """#!/usr/bin/env bash
 set -euo pipefail
@@ -18,12 +19,24 @@ echo "[{solution_name}] solution.py staged"
 
 SOLUTION_TEMPLATE = "{generated_code}\n"
 
+CONFIG_TEMPLATE = "problem: {problem}\n"
 
-def create_solution(repo_root: Path, name: str, code: str) -> Path:
+
+def create_solution(
+    repo_root: Path,
+    name: str,
+    code: str,
+    problem: Optional[str] = None,
+) -> Path:
     """Create a solution directory with all necessary files."""
     sol_dir = repo_root / "solutions" / name
     res_dir = sol_dir / "resources"
     res_dir.mkdir(parents=True, exist_ok=True)
+
+    # config.yaml (problem mapping)
+    if problem:
+        config = sol_dir / "config.yaml"
+        config.write_text(CONFIG_TEMPLATE.format(problem=problem))
 
     # prepare_env.sh
     prep = sol_dir / "prepare_env.sh"

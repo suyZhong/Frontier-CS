@@ -182,3 +182,60 @@ def read_variants_file(path: Path) -> List[int]:
                 pass
 
     return variants if variants else [0]
+
+
+def read_solution_config(solution_dir: Path) -> Optional[str]:
+    """
+    Read problem from a solution's config.yaml.
+
+    Returns:
+        Problem path (e.g., "flash_attn") or None if not found.
+    """
+    config_file = solution_dir / "config.yaml"
+    if not config_file.exists():
+        return None
+
+    try:
+        import yaml
+        with config_file.open("r", encoding="utf-8") as f:
+            config = yaml.safe_load(f)
+        if config and isinstance(config, dict):
+            return config.get("problem")
+    except Exception:
+        # Fallback: simple parsing for "problem: value"
+        try:
+            content = config_file.read_text(encoding="utf-8")
+            for line in content.splitlines():
+                line = line.strip()
+                if line.startswith("problem:"):
+                    return line.split(":", 1)[1].strip()
+        except Exception:
+            pass
+
+    return None
+
+
+def scan_solutions_dir(solutions_dir: Path) -> List[Pair]:
+    """
+    Scan solutions directory and build pairs from config.yaml files.
+
+    Args:
+        solutions_dir: Path to solutions directory
+
+    Returns:
+        List of Pair objects for solutions that have valid config.yaml
+    """
+    pairs: List[Pair] = []
+
+    if not solutions_dir.is_dir():
+        return pairs
+
+    for solution_path in sorted(solutions_dir.iterdir()):
+        if not solution_path.is_dir() or solution_path.name.startswith("."):
+            continue
+
+        problem = read_solution_config(solution_path)
+        if problem:
+            pairs.append(Pair(solution=solution_path.name, problem=problem))
+
+    return pairs

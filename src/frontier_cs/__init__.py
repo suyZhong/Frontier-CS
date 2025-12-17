@@ -28,7 +28,7 @@ Usage:
         backend="skypilot",
         bucket_url="s3://my-bucket/frontier-results",
     )
-    batch.evaluate_pairs_file(Path("eval_targets.txt"))
+    batch.# Use batch.scan_solutions_dir() or evaluate_pairs()
 """
 
 from .evaluator import FrontierCSEvaluator
