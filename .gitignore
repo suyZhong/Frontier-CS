@@ -50,4 +50,4 @@ berkeley-function-call-leaderboard/**/*.lock
 results/
 generation_logs/
 
-.lock
+*.lock
